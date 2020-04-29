@@ -12,6 +12,7 @@ class ReactCreditCards extends React.Component {
   static propTypes = {
     acceptedCards: PropTypes.array,
     callback: PropTypes.func,
+    customCards: PropTypes.array,
     cvc: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number,
@@ -38,6 +39,7 @@ class ReactCreditCards extends React.Component {
 
   static defaultProps = {
     acceptedCards: [],
+    customCards: [],
     locale: {
       valid: 'valid thru',
     },
@@ -95,6 +97,11 @@ class ReactCreditCards extends React.Component {
       const limit = [4, 6, 5];
       nextNumber = `${nextNumber.substr(format[0], limit[0])} ${nextNumber.substr(format[1], limit[1])} ${nextNumber.substr(format[2], limit[2])}`;
     }
+    else if (this.issuer === 'uatp') {
+      const format = [0, 4, 9];
+      const limit = [4, 5, 6];
+      nextNumber = `${nextNumber.substr(format[0], limit[0])} ${nextNumber.substr(format[1], limit[1])} ${nextNumber.substr(format[2], limit[2])}`;
+    }
     else if (nextNumber.length > 16) {
       const format = [0, 4, 8, 12];
       const limit = [4, 7];
@@ -145,7 +152,7 @@ class ReactCreditCards extends React.Component {
 
     let maxLength = 16;
 
-    if (issuer === 'amex') {
+    if (['amex', 'uatp'].includes(issuer)) {
       maxLength = 15;
     }
     else if (issuer === 'dinersclub') {
@@ -163,6 +170,7 @@ class ReactCreditCards extends React.Component {
 
   setCards() {
     const { acceptedCards } = this.props;
+    const { customCards } = this.props;
     let newCardArray = [];
 
     if (acceptedCards.length) {
@@ -175,6 +183,12 @@ class ReactCreditCards extends React.Component {
     }
     else {
       newCardArray = newCardArray.concat(Payment.getCardArray());
+    }
+
+    if (customCards.length) {
+      customCards.forEach(c => {
+        newCardArray.push(c);
+      });
     }
 
     Payment.setCardArray(newCardArray);
@@ -190,7 +204,7 @@ class ReactCreditCards extends React.Component {
           className={[
             'rccs__card',
             `rccs__card--${this.issuer}`,
-            focused === 'cvc' && this.issuer !== 'amex' ? 'rccs__card--flipped' : '',
+            focused === 'cvc' && this.issuer !== 'amex' && this.issuer !== 'uatp' ? 'rccs__card--flipped' : '',
           ].join(' ').trim()}
         >
           <div className="rccs__card--front">

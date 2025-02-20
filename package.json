@@ -22,6 +22,9 @@
   },
   "homepage": "https://github.com/amarofashion/react-credit-cards#readme",
   "license": "MIT",
+  "engines": {
+    "node": ">=16"
+  },
   "main": "lib/index.js",
   "module": "es/index.js",
   "files": [
